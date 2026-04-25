@@ -1,0 +1,987 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#003366">
+<title>Painel de Manutenção, Mercury SeaPro 200 HP V6 3.4L</title>
+<style>
+  /* ===== RESET ===== */
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+    color: #2c3e50;
+    background: #f4f6f8;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+  body { min-height: 100vh; }
+
+  /* ===== PALETA (mesma do trabalho) ===== */
+  :root {
+    --azul: #003366;
+    --azul-claro: #5B7C99;
+    --verde: #008542;
+    --verde-claro: #D4EDDA;
+    --vermelho: #c0392b;
+    --vermelho-claro: #f8d7da;
+    --amarelo: #f39c12;
+    --amarelo-claro: #fff3cd;
+    --cinza-borda: #d6dbe2;
+    --cinza-texto: #595959;
+    --cinza-fundo: #eaeef3;
+    --branco: #ffffff;
+  }
+
+  /* ===== CABEÇALHO ===== */
+  header {
+    background: linear-gradient(135deg, var(--azul) 0%, #00478f 100%);
+    color: var(--branco);
+    padding: 16px 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    position: sticky; top: 0; z-index: 10;
+  }
+  header h1 {
+    font-size: 1.15rem;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+  }
+  header .subtitulo {
+    font-size: 0.78rem;
+    opacity: 0.85;
+    margin-top: 2px;
+  }
+  header .borda-verde {
+    border-bottom: 3px solid var(--verde);
+  }
+
+  /* ===== CONTAINER ===== */
+  .container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 16px;
+  }
+
+  /* ===== CARDS ===== */
+  .card {
+    background: var(--branco);
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 14px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    border-left: 4px solid var(--azul);
+  }
+  .card h2 {
+    color: var(--azul);
+    font-size: 1.05rem;
+    margin-bottom: 12px;
+    font-weight: 700;
+    letter-spacing: 0.2px;
+  }
+  .card h3 {
+    color: var(--azul-claro);
+    font-size: 0.95rem;
+    margin: 14px 0 8px 0;
+    font-weight: 600;
+  }
+
+  /* ===== INPUTS ===== */
+  .input-grupo {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-bottom: 12px;
+  }
+  .input-grupo label {
+    font-size: 0.85rem;
+    color: var(--cinza-texto);
+    font-weight: 500;
+  }
+  .input-grupo input, .input-grupo select {
+    padding: 10px 12px;
+    border: 1px solid var(--cinza-borda);
+    border-radius: 6px;
+    font-size: 1rem;
+    background: var(--branco);
+    transition: border-color 0.2s;
+  }
+  .input-grupo input:focus, .input-grupo select:focus {
+    outline: none;
+    border-color: var(--azul);
+    box-shadow: 0 0 0 3px rgba(0,51,102,0.1);
+  }
+  .input-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  @media (max-width: 480px) {
+    .input-row { grid-template-columns: 1fr; }
+  }
+
+  /* ===== BOTÕES ===== */
+  .btn {
+    padding: 11px 18px;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.1s, box-shadow 0.2s, background 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .btn:active { transform: translateY(1px); }
+  .btn-primario {
+    background: var(--azul);
+    color: var(--branco);
+  }
+  .btn-primario:hover { background: #00478f; box-shadow: 0 2px 6px rgba(0,51,102,0.3); }
+  .btn-verde {
+    background: var(--verde);
+    color: var(--branco);
+  }
+  .btn-verde:hover { background: #00a352; box-shadow: 0 2px 6px rgba(0,133,66,0.3); }
+  .btn-secundario {
+    background: var(--cinza-fundo);
+    color: var(--azul);
+    border: 1px solid var(--cinza-borda);
+  }
+  .btn-secundario:hover { background: #d8dee6; }
+  .btn-perigo {
+    background: var(--vermelho-claro);
+    color: var(--vermelho);
+    border: 1px solid var(--vermelho);
+  }
+  .btn-perigo:hover { background: #f5b7b1; }
+
+  /* ===== STATUS BADGES ===== */
+  .status {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+  }
+  .status-ok { background: var(--verde-claro); color: #155724; }
+  .status-atencao { background: var(--amarelo-claro); color: #856404; }
+  .status-vencido { background: var(--vermelho-claro); color: #721c24; }
+  .status-feito { background: #d1ecf1; color: #0c5460; }
+
+  /* ===== GRID DE SERVIÇOS ===== */
+  .servicos-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 12px;
+    margin-top: 12px;
+  }
+  .servico-item {
+    background: var(--branco);
+    border: 1px solid var(--cinza-borda);
+    border-left: 4px solid var(--cinza-borda);
+    border-radius: 6px;
+    padding: 14px;
+    transition: transform 0.15s, box-shadow 0.2s;
+  }
+  .servico-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+  }
+  .servico-item.s-ok { border-left-color: var(--verde); }
+  .servico-item.s-atencao { border-left-color: var(--amarelo); background: #fffdf7; }
+  .servico-item.s-vencido { border-left-color: var(--vermelho); background: #fdf6f6; }
+
+  .servico-titulo {
+    font-weight: 700;
+    color: var(--azul);
+    font-size: 0.95rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 6px;
+  }
+  .servico-info {
+    font-size: 0.85rem;
+    color: var(--cinza-texto);
+    margin: 4px 0;
+  }
+  .servico-info strong {
+    color: var(--azul);
+    font-weight: 600;
+  }
+  .servico-acoes {
+    margin-top: 10px;
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  .servico-acoes button {
+    font-size: 0.8rem;
+    padding: 6px 10px;
+  }
+
+  /* ===== BARRA DE PROGRESSO ===== */
+  .barra {
+    height: 6px;
+    background: var(--cinza-fundo);
+    border-radius: 3px;
+    overflow: hidden;
+    margin: 8px 0 4px;
+  }
+  .barra-fill {
+    height: 100%;
+    transition: width 0.5s;
+    border-radius: 3px;
+  }
+  .barra-fill.ok { background: var(--verde); }
+  .barra-fill.atencao { background: var(--amarelo); }
+  .barra-fill.vencido { background: var(--vermelho); }
+
+  /* ===== ALERTAS ===== */
+  .alerta {
+    padding: 12px 14px;
+    border-radius: 6px;
+    margin-bottom: 10px;
+    font-size: 0.9rem;
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+  }
+  .alerta-vencido { background: var(--vermelho-claro); color: #721c24; border-left: 4px solid var(--vermelho); }
+  .alerta-atencao { background: var(--amarelo-claro); color: #856404; border-left: 4px solid var(--amarelo); }
+  .alerta-info { background: #d1ecf1; color: #0c5460; border-left: 4px solid #17a2b8; }
+  .alerta-ok { background: var(--verde-claro); color: #155724; border-left: 4px solid var(--verde); }
+
+  /* ===== RESUMO (DASHBOARD) ===== */
+  .resumo-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+  .resumo-box {
+    background: var(--branco);
+    border: 1px solid var(--cinza-borda);
+    padding: 14px;
+    border-radius: 6px;
+    text-align: center;
+  }
+  .resumo-box .num {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: var(--azul);
+  }
+  .resumo-box .label {
+    font-size: 0.75rem;
+    color: var(--cinza-texto);
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    margin-top: 2px;
+  }
+  .resumo-box.alerta-vermelho .num { color: var(--vermelho); }
+  .resumo-box.alerta-amarelo .num { color: var(--amarelo); }
+  .resumo-box.alerta-verde .num { color: var(--verde); }
+
+  /* ===== CHECKLIST DIÁRIO ===== */
+  .checklist {
+    list-style: none;
+    margin-top: 8px;
+  }
+  .checklist li {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 8px 0;
+    border-bottom: 1px solid #f0f3f6;
+  }
+  .checklist li:last-child { border-bottom: none; }
+  .checklist input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    margin-top: 2px;
+    accent-color: var(--verde);
+    cursor: pointer;
+  }
+  .checklist label {
+    flex: 1;
+    cursor: pointer;
+    font-size: 0.9rem;
+  }
+  .checklist input:checked + label {
+    text-decoration: line-through;
+    color: var(--cinza-texto);
+  }
+
+  /* ===== HISTÓRICO ===== */
+  .historico-tabela {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 8px;
+    font-size: 0.85rem;
+  }
+  .historico-tabela th {
+    background: var(--azul);
+    color: var(--branco);
+    padding: 8px;
+    text-align: left;
+    font-weight: 600;
+  }
+  .historico-tabela td {
+    padding: 8px;
+    border-bottom: 1px solid var(--cinza-borda);
+  }
+  .historico-tabela tr:nth-child(even) td {
+    background: #f9fafc;
+  }
+  .historico-vazio {
+    text-align: center;
+    color: var(--cinza-texto);
+    padding: 20px;
+    font-style: italic;
+    font-size: 0.9rem;
+  }
+
+  /* ===== FOOTER ===== */
+  footer {
+    text-align: center;
+    padding: 20px 16px;
+    font-size: 0.78rem;
+    color: var(--cinza-texto);
+    border-top: 1px solid var(--cinza-borda);
+    background: var(--branco);
+    margin-top: 16px;
+  }
+  footer strong { color: var(--azul); }
+
+  /* ===== PRINT (CHECKLIST IMPRIMÍVEL) ===== */
+  @media print {
+    header, .nao-imprimir, footer { display: none !important; }
+    body { background: white; }
+    .card { box-shadow: none; border: 1px solid #ccc; page-break-inside: avoid; }
+    .servicos-grid { grid-template-columns: 1fr 1fr; }
+  }
+
+  /* ===== UTILS ===== */
+  .flex-row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  .mt-1 { margin-top: 8px; }
+  .mb-1 { margin-bottom: 8px; }
+  .text-center { text-align: center; }
+  .small { font-size: 0.85rem; color: var(--cinza-texto); }
+  .icon { font-size: 1.05em; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="container borda-verde" style="padding-bottom: 8px;">
+    <h1>⚓ Painel de Manutenção, Mercury SeaPro 200 HP V6 3.4L</h1>
+    <div class="subtitulo">Engenharia Naval, Sistemas Propulsores, Atividade 3, Vilmar Rocha Lopes</div>
+  </div>
+</header>
+
+<div class="container">
+
+  <!-- ============================================== -->
+  <!-- CARD 1: ENTRADA DE DADOS DO HORÍMETRO          -->
+  <!-- ============================================== -->
+  <div class="card nao-imprimir">
+    <h2>📊 Registro de Operação</h2>
+    <p class="small mb-1">Insira o horímetro atual e a data da leitura. O sistema calcula automaticamente as próximas manutenções.</p>
+
+    <div class="input-row">
+      <div class="input-grupo">
+        <label for="horimetro">Horímetro atual (horas)</label>
+        <input type="number" id="horimetro" min="0" step="0.1" placeholder="Ex: 87.5">
+      </div>
+      <div class="input-grupo">
+        <label for="dataLeitura">Data da leitura</label>
+        <input type="date" id="dataLeitura">
+      </div>
+    </div>
+
+    <div class="input-row">
+      <div class="input-grupo">
+        <label for="dataInicio">Data da primeira partida do motor</label>
+        <input type="date" id="dataInicio">
+      </div>
+      <div class="input-grupo">
+        <label for="ambiente">Ambiente predominante</label>
+        <select id="ambiente">
+          <option value="salgada">Água salgada (mais agressivo)</option>
+          <option value="doce">Água doce</option>
+          <option value="mista">Uso misto</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="flex-row mt-1">
+      <button class="btn btn-primario" onclick="atualizarPainel()">🔄 Atualizar Painel</button>
+      <button class="btn btn-secundario" onclick="exportarHistorico()">💾 Exportar histórico (JSON)</button>
+      <button class="btn btn-secundario" onclick="document.getElementById('importInput').click()">📥 Importar histórico</button>
+      <input type="file" id="importInput" accept=".json" style="display:none" onchange="importarHistorico(event)">
+      <button class="btn btn-perigo" onclick="confirmarReset()">🗑️ Limpar tudo</button>
+    </div>
+  </div>
+
+  <!-- ============================================== -->
+  <!-- CARD 2: RESUMO RÁPIDO (DASHBOARD)              -->
+  <!-- ============================================== -->
+  <div class="card">
+    <h2>📈 Resumo Operacional</h2>
+    <div class="resumo-grid" id="resumoGrid">
+      <!-- Preenchido por JS -->
+    </div>
+    <div id="alertasContainer">
+      <!-- Preenchido por JS -->
+    </div>
+  </div>
+
+  <!-- ============================================== -->
+  <!-- CARD 3: GRID DE SERVIÇOS COM STATUS            -->
+  <!-- ============================================== -->
+  <div class="card">
+    <h2>🔧 Status dos Serviços de Manutenção Preventiva</h2>
+    <p class="small mb-1">Clique em "✓ Marcar realizado" quando concluir um serviço. O sistema reagenda automaticamente para o próximo intervalo.</p>
+    <div class="servicos-grid" id="servicosGrid">
+      <!-- Preenchido por JS -->
+    </div>
+  </div>
+
+  <!-- ============================================== -->
+  <!-- CARD 4: CHECKLIST DIÁRIO                       -->
+  <!-- ============================================== -->
+  <div class="card">
+    <h2>✅ Checklist Diário (antes de cada partida)</h2>
+    <p class="small mb-1">Itens da manutenção preditiva diária. Imprima esta seção para uso a bordo.</p>
+    <ul class="checklist" id="checklistDiario">
+      <!-- Preenchido por JS -->
+    </ul>
+    <div class="flex-row mt-1 nao-imprimir">
+      <button class="btn btn-verde" onclick="window.print()">🖨️ Imprimir checklist</button>
+      <button class="btn btn-secundario" onclick="resetCheckboxes()">↺ Limpar marcações</button>
+    </div>
+  </div>
+
+  <!-- ============================================== -->
+  <!-- CARD 5: PRÉ-PARTIDA (PREDITIVA)                -->
+  <!-- ============================================== -->
+  <div class="card">
+    <h2>👁️ Inspeções Preditivas Programadas</h2>
+    <div id="preditivaContainer">
+      <!-- Preenchido por JS -->
+    </div>
+  </div>
+
+  <!-- ============================================== -->
+  <!-- CARD 6: HISTÓRICO                              -->
+  <!-- ============================================== -->
+  <div class="card">
+    <h2>📜 Histórico de Manutenções</h2>
+    <div id="historicoContainer">
+      <!-- Preenchido por JS -->
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  <div><strong>Painel de Manutenção, Mercury SeaPro 200 HP V6 3.4L</strong></div>
+  <div>Atividade 3, Unidade II, Sistemas Propulsores, Engenharia Naval, Faculdade Unyleya</div>
+  <div>Vilmar Rocha Lopes &middot; Maceió, AL &middot; 2026</div>
+  <div style="margin-top:6px; opacity:0.8;">Aplicativo web standalone, funciona 100% offline. Os dados ficam apenas neste navegador.</div>
+</footer>
+
+<script>
+/* ==================================================== */
+/* DEFINIÇÃO DOS SERVIÇOS DE MANUTENÇÃO PREVENTIVA      */
+/* (mesmos do documento, baseados em Mercury, 2024)    */
+/* ==================================================== */
+const SERVICOS = [
+  {
+    id: 'amaciamento',
+    nome: 'Amaciamento (10 h)',
+    horas: 10,
+    meses: null,
+    unico: true,
+    descricao: 'Primeira troca de óleo do motor e do filtro, ao final do amaciamento.',
+    itens: [
+      'Operar em regime variado, evitando rotação máxima prolongada',
+      'Trocar óleo do motor (Mercury 25W-40 FCW)',
+      'Trocar filtro de óleo'
+    ]
+  },
+  {
+    id: 's50',
+    nome: 'Revisão de 50 h',
+    horas: 50,
+    meses: 6,
+    descricao: 'Revisão leve de rotina.',
+    itens: [
+      'Inspeção visual geral do motor',
+      'Verificação dos ânodos de sacrifício',
+      'Lubrificação de articulações e Power Trim & Tilt',
+      'Reaperto de fixações externas',
+      'Limpeza externa do motor'
+    ]
+  },
+  {
+    id: 's100',
+    nome: 'Kit Mercury 100 h',
+    horas: 100,
+    meses: 12,
+    critico: true,
+    descricao: 'Principal revisão periódica. Aplicação do Kit de Manutenção Mercury 100 horas.',
+    itens: [
+      'Trocar óleo do motor (Mercury 25W-40 FCW) e filtro',
+      'Trocar óleo da rabeta (Mercury SAE 90)',
+      'Trocar velas de ignição',
+      'Substituir filtro separador combustível/água',
+      'Inspecionar filtro de ar',
+      'Reaperto de conexões elétricas',
+      'Diagnóstico eletrônico via ECM/SmartCraft'
+    ]
+  },
+  {
+    id: 's200',
+    nome: 'Revisão de 200 h',
+    horas: 200,
+    meses: 24,
+    descricao: 'Revisão intermediária em oficina autorizada Mercury.',
+    itens: [
+      'Itens das 100 h',
+      'Inspeção do rotor da bomba d\'água',
+      'Inspeção do termostato',
+      'Verificação da folga das válvulas',
+      'Inspeção do sistema de injeção eletrônica',
+      'Leitura de códigos de falha da ECM',
+      'Inspeção das mangueiras de combustível e refrigeração'
+    ]
+  },
+  {
+    id: 's300',
+    nome: 'Kit Mercury 300 h',
+    horas: 300,
+    meses: 36,
+    critico: true,
+    descricao: 'Aplicação do Kit Mercury 300 horas (cód. 8M0149932 ou equivalente para V6 3.4L).',
+    itens: [
+      'Substituição do rotor da bomba d\'água',
+      'Substituição da correia do alternador',
+      'Substituição da válvula termostática',
+      'Substituição dos 4 ânodos do bloco e do ânodo do trim',
+      'Trocar velas de ignição',
+      'Trocar filtros',
+      'Inspeção da junta do cabeçote',
+      'Teste de compressão dos cilindros'
+    ]
+  },
+  {
+    id: 's500',
+    nome: 'Grande revisão (500 h)',
+    horas: 500,
+    meses: 60,
+    descricao: 'Recomenda-se execução em concessionária autorizada Mercury.',
+    itens: [
+      'Abertura da rabeta para inspeção',
+      'Inspeção de engrenagens, vedações e eixo da hélice',
+      'Substituição preventiva de juntas e retentores',
+      'Inspeção completa do sistema elétrico',
+      'Substituição preventiva de velas, filtros e mangueiras',
+      'Teste completo de desempenho'
+    ]
+  },
+  {
+    id: 's1000',
+    nome: 'Revisão de 1.000 h',
+    horas: 1000,
+    meses: null,
+    unico: true,
+    descricao: 'Marco de grande revisão de longo prazo, obrigatoriamente em autorizada.',
+    itens: [
+      'Inspeção e eventual substituição da correia de sincronismo',
+      'Inspeção interna da câmara de combustão por endoscopia',
+      'Demais itens de ciclo longo conforme manual'
+    ]
+  }
+];
+
+const CHECKLIST_DIARIO = [
+  'Lavagem externa do motor com água doce (após uso em água salgada)',
+  'Acionamento do sistema de flush no circuito de arrefecimento',
+  'Verificação visual do motor quanto a vazamentos',
+  'Conferência do nível de óleo pela porta de acesso do capô',
+  'Inspeção visual da hélice quanto a danos',
+  'Pressurização do bulbo de combustível',
+  'Verificação visual do ânodo externo',
+  'Verificação do nível e aspecto do óleo (cor anormal indica problema)',
+  'Observar tell-tale (jato-piloto de água) durante a partida',
+  'Acompanhar temperatura no painel SmartCraft durante a operação'
+];
+
+const PREDITIVA = [
+  { freq: 'Antes de cada partida', itens: ['Verificação visual de vazamentos sob o motor e casco', 'Aspecto do óleo do motor', 'Pressurização do bulbo', 'Hélice e ânodo externo'] },
+  { freq: 'Durante a operação', itens: ['Tell-tale de arrefecimento', 'Temperatura no painel SmartCraft', 'Vibração e ruídos atípicos', 'Fumaça anormal (branca, azul ou preta)', 'Luzes de advertência da ECM'] },
+  { freq: 'Mensal', itens: ['Leitura de códigos de falha via SmartCraft', 'Inspeção de cabos elétricos e conectores', 'Estado dos ânodos (substituir a 50% de consumo)', 'Tensão da bateria com multímetro'] },
+  { freq: 'Trimestral', itens: ['Análise do óleo coletado na troca', 'Teste de compressão dos cilindros', 'Análise de vibração'] },
+  { freq: 'Semestral', itens: ['Inspeção endoscópica dos cilindros', 'Medição de isolamento elétrico', 'Inspeção dos sensores de injeção', 'Inspeção da hélice quanto a cavitação'] }
+];
+
+const STORAGE_KEY = 'manutencao_seapro_v1';
+
+/* ==================================================== */
+/* GERENCIAMENTO DE ESTADO (localStorage)               */
+/* ==================================================== */
+function carregarEstado() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return { historico: [], horimetro: 0, dataLeitura: '', dataInicio: '', ambiente: 'salgada' };
+    return JSON.parse(raw);
+  } catch (e) {
+    return { historico: [], horimetro: 0, dataLeitura: '', dataInicio: '', ambiente: 'salgada' };
+  }
+}
+function salvarEstado(estado) {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(estado)); }
+  catch (e) { console.error('Erro ao salvar:', e); }
+}
+
+/* ==================================================== */
+/* CÁLCULO DE PRÓXIMA MANUTENÇÃO                        */
+/* ==================================================== */
+function ultimaExecucao(servicoId, historico) {
+  const filtrado = historico.filter(h => h.servicoId === servicoId);
+  if (filtrado.length === 0) return null;
+  return filtrado.reduce((a, b) => new Date(a.data) > new Date(b.data) ? a : b);
+}
+
+function calcularStatusServico(servico, horimetroAtual, dataAtual, dataInicio, historico) {
+  const ultima = ultimaExecucao(servico.id, historico);
+
+  // ----- Cálculo por horas -----
+  let horasReferencia = 0;
+  let dataReferencia = dataInicio ? new Date(dataInicio) : null;
+  if (ultima) {
+    horasReferencia = ultima.horimetro;
+    dataReferencia = new Date(ultima.data);
+  }
+
+  // Para serviços únicos (amaciamento, 1000 h), só executar uma vez
+  let proximaHoras, horasFaltando;
+  if (servico.unico) {
+    if (ultima) {
+      // Já feito, status feito
+      return {
+        status: 'feito', horasFaltando: null, diasFaltando: null,
+        proximaHoras: null, proximaData: null, ultima
+      };
+    }
+    proximaHoras = servico.horas;
+  } else {
+    // Próxima múltipla do intervalo após horasReferencia
+    proximaHoras = horasReferencia + servico.horas;
+    if (!ultima) proximaHoras = servico.horas; // primeira execução
+  }
+
+  horasFaltando = proximaHoras - horimetroAtual;
+
+  // ----- Cálculo por dias -----
+  let diasFaltando = null;
+  let proximaData = null;
+  if (servico.meses && dataReferencia) {
+    proximaData = new Date(dataReferencia);
+    proximaData.setMonth(proximaData.getMonth() + servico.meses);
+    diasFaltando = Math.ceil((proximaData - dataAtual) / (1000 * 60 * 60 * 24));
+  }
+
+  // ----- Determinação de status (o que ocorrer primeiro) -----
+  let status = 'ok';
+  // Tolerância: amarelo quando faltam <= 10% das horas ou <=30 dias
+  const limiarHorasAmarelo = servico.horas * 0.10;
+  if (horasFaltando <= 0 || (diasFaltando !== null && diasFaltando <= 0)) {
+    status = 'vencido';
+  } else if (horasFaltando <= limiarHorasAmarelo || (diasFaltando !== null && diasFaltando <= 30)) {
+    status = 'atencao';
+  }
+
+  return { status, horasFaltando, diasFaltando, proximaHoras, proximaData, ultima };
+}
+
+/* ==================================================== */
+/* RENDERIZAÇÃO                                         */
+/* ==================================================== */
+function formatarData(data) {
+  if (!data) return '—';
+  const d = (data instanceof Date) ? data : new Date(data);
+  return d.toLocaleDateString('pt-BR');
+}
+function formatarHoras(h) {
+  if (h === null || h === undefined) return '—';
+  return h.toFixed(1) + ' h';
+}
+
+function renderizarResumo(horimetroAtual, statuses) {
+  const grid = document.getElementById('resumoGrid');
+  const container = document.getElementById('alertasContainer');
+
+  const vencidos = statuses.filter(s => s.status === 'vencido').length;
+  const atencao = statuses.filter(s => s.status === 'atencao').length;
+  const ok = statuses.filter(s => s.status === 'ok').length;
+  const feitos = statuses.filter(s => s.status === 'feito').length;
+
+  grid.innerHTML = `
+    <div class="resumo-box"><div class="num">${horimetroAtual.toFixed(1)}</div><div class="label">Horímetro (h)</div></div>
+    <div class="resumo-box ${vencidos > 0 ? 'alerta-vermelho' : ''}"><div class="num">${vencidos}</div><div class="label">Vencidos</div></div>
+    <div class="resumo-box ${atencao > 0 ? 'alerta-amarelo' : ''}"><div class="num">${atencao}</div><div class="label">Em atenção</div></div>
+    <div class="resumo-box alerta-verde"><div class="num">${ok}</div><div class="label">Em dia</div></div>
+    <div class="resumo-box"><div class="num">${feitos}</div><div class="label">Já realizados</div></div>
+  `;
+
+  // Alertas
+  let alertasHTML = '';
+  statuses.forEach(s => {
+    if (s.status === 'vencido') {
+      const detalhe = s.horasFaltando !== null && s.horasFaltando <= 0
+        ? `vencido por ${Math.abs(s.horasFaltando).toFixed(1)} h`
+        : (s.diasFaltando !== null && s.diasFaltando <= 0 ? `vencido há ${Math.abs(s.diasFaltando)} dias` : 'vencido');
+      alertasHTML += `<div class="alerta alerta-vencido"><span>🔴</span><div><strong>${s.servico.nome}</strong>: ${detalhe}. ${s.servico.descricao}</div></div>`;
+    } else if (s.status === 'atencao') {
+      const partes = [];
+      if (s.horasFaltando !== null && s.horasFaltando > 0) partes.push(`${s.horasFaltando.toFixed(1)} h`);
+      if (s.diasFaltando !== null && s.diasFaltando > 0) partes.push(`${s.diasFaltando} dias`);
+      alertasHTML += `<div class="alerta alerta-atencao"><span>⚠️</span><div><strong>${s.servico.nome}</strong>: faltam ${partes.join(' ou ')} para o serviço.</div></div>`;
+    }
+  });
+  if (alertasHTML === '') {
+    alertasHTML = '<div class="alerta alerta-ok"><span>✓</span><div>Todos os serviços estão em dia. Continue acompanhando o horímetro a cada uso.</div></div>';
+  }
+  container.innerHTML = alertasHTML;
+}
+
+function renderizarServicos(statuses, horimetroAtual) {
+  const grid = document.getElementById('servicosGrid');
+  grid.innerHTML = statuses.map(s => {
+    const cls = s.status === 'vencido' ? 's-vencido' : (s.status === 'atencao' ? 's-atencao' : 's-ok');
+    const badge = s.status === 'vencido' ? '<span class="status status-vencido">Vencido</span>'
+      : (s.status === 'atencao' ? '<span class="status status-atencao">Atenção</span>'
+      : (s.status === 'feito' ? '<span class="status status-feito">Realizado</span>'
+      : '<span class="status status-ok">Em dia</span>'));
+
+    let progresso = '';
+    if (s.status !== 'feito' && s.servico.horas) {
+      const horasReferencia = s.proximaHoras - s.servico.horas;
+      const total = s.servico.horas;
+      const percorrido = horimetroAtual - horasReferencia;
+      const pct = Math.max(0, Math.min(100, (percorrido / total) * 100));
+      const fillCls = s.status === 'vencido' ? 'vencido' : (s.status === 'atencao' ? 'atencao' : 'ok');
+      progresso = `
+        <div class="barra"><div class="barra-fill ${fillCls}" style="width: ${pct}%"></div></div>
+        <div class="small">${pct.toFixed(0)}% do intervalo de ${s.servico.horas} h</div>
+      `;
+    }
+
+    let infoExtra = '';
+    if (s.status === 'feito') {
+      infoExtra = `<div class="servico-info">Última execução: <strong>${formatarData(s.ultima.data)}</strong> @ ${formatarHoras(s.ultima.horimetro)}</div>`;
+    } else {
+      if (s.proximaHoras !== null) {
+        infoExtra += `<div class="servico-info">Próxima em: <strong>${formatarHoras(s.proximaHoras)}</strong></div>`;
+      }
+      if (s.proximaData) {
+        infoExtra += `<div class="servico-info">Ou em: <strong>${formatarData(s.proximaData)}</strong></div>`;
+      }
+      if (s.ultima) {
+        infoExtra += `<div class="servico-info small">Última: ${formatarData(s.ultima.data)} @ ${formatarHoras(s.ultima.horimetro)}</div>`;
+      }
+    }
+
+    const itensHTML = s.servico.itens.map(i => `<li style="margin-left: 16px; font-size: 0.82rem; color: var(--cinza-texto);">${i}</li>`).join('');
+
+    return `
+      <div class="servico-item ${cls}">
+        <div class="servico-titulo">
+          <span>${s.servico.nome}</span>
+          ${badge}
+        </div>
+        <div class="servico-info">${s.servico.descricao}</div>
+        ${infoExtra}
+        ${progresso}
+        <details style="margin-top:8px;">
+          <summary class="small" style="cursor:pointer; color: var(--azul-claro); user-select:none;">▸ Ver itens do serviço</summary>
+          <ul style="margin-top:6px; padding-left: 6px;">${itensHTML}</ul>
+        </details>
+        <div class="servico-acoes nao-imprimir">
+          <button class="btn btn-verde" onclick="marcarRealizado('${s.servico.id}')">✓ Marcar realizado</button>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function renderizarChecklist() {
+  const ul = document.getElementById('checklistDiario');
+  ul.innerHTML = CHECKLIST_DIARIO.map((item, i) => `
+    <li>
+      <input type="checkbox" id="ck${i}">
+      <label for="ck${i}">${item}</label>
+    </li>
+  `).join('');
+}
+
+function renderizarPreditiva() {
+  const c = document.getElementById('preditivaContainer');
+  c.innerHTML = PREDITIVA.map(p => `
+    <div style="margin-bottom: 12px;">
+      <h3>${p.freq}</h3>
+      <ul style="padding-left: 18px;">
+        ${p.itens.map(i => `<li style="font-size: 0.88rem; margin: 3px 0;">${i}</li>`).join('')}
+      </ul>
+    </div>
+  `).join('');
+}
+
+function renderizarHistorico(historico) {
+  const c = document.getElementById('historicoContainer');
+  if (historico.length === 0) {
+    c.innerHTML = '<div class="historico-vazio">Nenhuma manutenção registrada ainda. Use os botões "Marcar realizado" nos cards de serviço acima.</div>';
+    return;
+  }
+  const ord = [...historico].sort((a, b) => new Date(b.data) - new Date(a.data));
+  c.innerHTML = `
+    <table class="historico-tabela">
+      <thead><tr><th>Data</th><th>Horímetro</th><th>Serviço</th><th class="nao-imprimir"></th></tr></thead>
+      <tbody>
+        ${ord.map((h, idx) => {
+          const servico = SERVICOS.find(s => s.id === h.servicoId);
+          return `<tr>
+            <td>${formatarData(h.data)}</td>
+            <td>${formatarHoras(h.horimetro)}</td>
+            <td>${servico ? servico.nome : h.servicoId}</td>
+            <td class="nao-imprimir"><button class="btn btn-perigo" style="padding: 4px 8px; font-size: 0.78rem;" onclick="removerHistorico('${h.id}')">Remover</button></td>
+          </tr>`;
+        }).join('')}
+      </tbody>
+    </table>
+  `;
+}
+
+/* ==================================================== */
+/* AÇÕES                                                */
+/* ==================================================== */
+function atualizarPainel() {
+  const horimetro = parseFloat(document.getElementById('horimetro').value) || 0;
+  const dataLeitura = document.getElementById('dataLeitura').value;
+  const dataInicio = document.getElementById('dataInicio').value;
+  const ambiente = document.getElementById('ambiente').value;
+
+  const estado = carregarEstado();
+  estado.horimetro = horimetro;
+  estado.dataLeitura = dataLeitura;
+  estado.dataInicio = dataInicio;
+  estado.ambiente = ambiente;
+  salvarEstado(estado);
+
+  const dataAtual = dataLeitura ? new Date(dataLeitura) : new Date();
+  const statuses = SERVICOS.map(s => ({
+    servico: s,
+    ...calcularStatusServico(s, horimetro, dataAtual, dataInicio, estado.historico)
+  }));
+
+  renderizarResumo(horimetro, statuses);
+  renderizarServicos(statuses, horimetro);
+  renderizarHistorico(estado.historico);
+}
+
+function marcarRealizado(servicoId) {
+  const horimetro = parseFloat(document.getElementById('horimetro').value);
+  const dataLeitura = document.getElementById('dataLeitura').value;
+
+  if (isNaN(horimetro) || !dataLeitura) {
+    alert('Antes de marcar como realizado, preencha o horímetro atual e a data da leitura no topo do painel.');
+    return;
+  }
+
+  const servico = SERVICOS.find(s => s.id === servicoId);
+  if (!confirm(`Confirmar a execução de "${servico.nome}" em ${formatarData(dataLeitura)} com horímetro ${horimetro.toFixed(1)} h?`)) return;
+
+  const estado = carregarEstado();
+  estado.historico.push({
+    id: 'h_' + Date.now() + '_' + Math.random().toString(36).slice(2,7),
+    servicoId,
+    horimetro,
+    data: dataLeitura
+  });
+  salvarEstado(estado);
+  atualizarPainel();
+}
+
+function removerHistorico(id) {
+  if (!confirm('Remover este registro do histórico?')) return;
+  const estado = carregarEstado();
+  estado.historico = estado.historico.filter(h => h.id !== id);
+  salvarEstado(estado);
+  atualizarPainel();
+}
+
+function resetCheckboxes() {
+  document.querySelectorAll('#checklistDiario input[type=checkbox]').forEach(cb => cb.checked = false);
+}
+
+function confirmarReset() {
+  if (!confirm('Tem certeza? Isso apaga o horímetro, o histórico e todas as configurações deste painel.')) return;
+  localStorage.removeItem(STORAGE_KEY);
+  location.reload();
+}
+
+function exportarHistorico() {
+  const estado = carregarEstado();
+  const blob = new Blob([JSON.stringify(estado, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'manutencao_seapro_' + new Date().toISOString().slice(0,10) + '.json';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function importarHistorico(evento) {
+  const arquivo = evento.target.files[0];
+  if (!arquivo) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const dados = JSON.parse(e.target.result);
+      if (!dados.historico || !Array.isArray(dados.historico)) throw new Error('Formato inválido');
+      if (!confirm('Substituir os dados atuais pelo conteúdo do arquivo?')) return;
+      salvarEstado(dados);
+      location.reload();
+    } catch (err) {
+      alert('Arquivo inválido. Esperado JSON exportado por este painel.');
+    }
+  };
+  reader.readAsText(arquivo);
+}
+
+/* ==================================================== */
+/* INICIALIZAÇÃO                                        */
+/* ==================================================== */
+window.addEventListener('DOMContentLoaded', () => {
+  // Restaurar estado
+  const estado = carregarEstado();
+  if (estado.horimetro) document.getElementById('horimetro').value = estado.horimetro;
+  if (estado.dataLeitura) document.getElementById('dataLeitura').value = estado.dataLeitura;
+  else document.getElementById('dataLeitura').value = new Date().toISOString().slice(0,10);
+  if (estado.dataInicio) document.getElementById('dataInicio').value = estado.dataInicio;
+  if (estado.ambiente) document.getElementById('ambiente').value = estado.ambiente;
+
+  renderizarChecklist();
+  renderizarPreditiva();
+  atualizarPainel();
+});
+</script>
+
+</body>
+</html>
